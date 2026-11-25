@@ -59,3 +59,9 @@ Newest last. Times in IST. No secret values.
   `Maintenance_ClusterUpgradeCompleted` (VC `AppPaused`) until `upgrade-service --step resume`. Resume at 20:39:
   service `ClusterCreationCompleted`, VC `federal-cde-vc` `AppInstalled` (running), all steps completed.
 - `fedops.upgrade` now runs the resume step too.
+
+## 2026-11-25 20:44 IST - Database Catalog upgrade retried from the UI
+
+- `federal-aw-dl-default` Deleting for 5.5 min, then Error; no new DBC event since 16:57 ("deleting namespace"):
+  the namespace from the 16:57 attempt is still terminating. Retries will fail until it is cleared on EKS.
+- Laptop AWS profiles `default` and `981304421142_cldr_poweruser` return InvalidClientTokenId (expired keys).
