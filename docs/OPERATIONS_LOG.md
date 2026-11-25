@@ -40,3 +40,15 @@ Newest last. Times in IST. No secret values.
   starts the VW; suspended it again (`ctl stop --only cdw`). CDE service max instances 50 x r5.4xlarge: no change.
 - CDE VC quota still 20 CPU / 80 GiB: `cdp de update-vc` has no quota field (checked on cdpcli 0.9.165), UI step
   pending.
+
+## 2026-11-25 16:30-17:10 IST - CDE upgrade, CDW upgrade failures
+
+- CDE VC quota set in the UI to 100 CPU / 300 GiB (above target), read back. CDE prepare and backup run from the UI;
+  `upgrade-service --step upgrade` from the laptop at 16:53, in progress (`Maintenance_ClusterUpgradeInProgress`).
+- CDW, from the UI: Impala `federal-impala-1` and Trino `federal-trino-1` upgrade to 2026.0.21.4-12 at 16:36, both
+  Error; Trino upgrade retried, Impala rebuild at 16:44. Both still 2025.0.21.3-3, 0 pods.
+- Database Catalog `federal-aw-dl-default` had not been upgraded first; `dw upgrade-dbc` to 2026.0.21.4-12 at 16:57
+  failed the same way: events stop at "deleting namespace", status Error. Hive `federal-hive-1` still Running.
+- Common point: every upgrade hangs deleting its Kubernetes namespace on EKS `env-jjwgzn-dwx-stack-eks` (CDW
+  cluster 1.12.5-b291). `dw get-logs` is private-cloud only; kubectl needs valid AWS credentials (laptop's invalid).
+  No further CDW change until the namespace cause is known.
