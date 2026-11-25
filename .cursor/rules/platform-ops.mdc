@@ -1,0 +1,13 @@
+---
+description: Operating the shared Cloudera federal environment
+alwaysApply: true
+---
+
+# Shared federal environment
+
+- Start, stop, resize or upgrade only through `fedops` (`python -m fedops.ctl`, `python -m fedops.upgrade`). Never improvise raw `cdp` writes first.
+- Order every time: `status` → `--dry-run` (show the user the plan) → the change → `status`.
+- `--yes-shared` only for services the user named in this conversation; ask again in each new conversation. Other demos run on the same Data Hubs, warehouse, virtual cluster and workspace.
+- Upgrade: each demo in `config/projects.json` runs its own project stop first, then `--projects-stopped`. Do not stop the environment itself: a stopped Data Lake cannot be upgraded.
+- Credentials come from the environment or `~/.config/federal-cdp/federal.env`; never print, echo or commit them.
+- Afterwards: `docs/OPERATIONS_LOG.md` entry in IST and the README status line.
