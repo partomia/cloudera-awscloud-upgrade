@@ -24,7 +24,8 @@ All commands from the repo root with `.venv/bin/python`. Read `status` before th
    2. validate and prepare (no downtime, parcels downloaded);
    3. shared stop: CAI workspace, NiFi, CDE VC, Impala VW, Flink, Kafka;
    4. Data Lake backup `pre-upgrade-<build>-<UTC stamp>`, then upgrade with `--skip-backup`;
-   5. CDE: VC resumed, `upgrade-service` prepare → backup → upgrade;
+   5. CDE: VC resumed, `upgrade-service` prepare → backup → upgrade → resume (the service stays in
+      `Maintenance_ClusterUpgradeCompleted`, VC `AppPaused`, until resume);
    6. CDW: Database Catalog, then the VW (started first);
    7. shared start in reverse order, then `status`.
 3. Each demo runs its own project start. For the EV demo, the producer and nightly DAG stay off unless asked.

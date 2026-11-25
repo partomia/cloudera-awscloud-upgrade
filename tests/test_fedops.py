@@ -119,7 +119,8 @@ def test_upgrade_dry_run_plans_every_step_in_order_and_writes_nothing(fake, caps
     steps = ["validate and prepare", "suspend CAI workspace", "suspend CDE virtual cluster",
              "suspend CDW virtual warehouse", "back up the Data Lake", f"upgrade the Data Lake to 7.3.1-1.cdh7.3.1.p500.{BUILD}",
              "CDE upgrade-service --step prepare", "CDE upgrade-service --step backup",
-             "CDE upgrade-service --step upgrade", "upgrade CDW Database Catalog warehouse-1 to 2025.0.20.1-9",
+             "CDE upgrade-service --step upgrade", "CDE upgrade-service --step resume",
+             "upgrade CDW Database Catalog warehouse-1 to 2025.0.20.1-9",
              "upgrade CDW VW"]
     pos = [out.index(f"would {s}") for s in steps]
     assert pos == sorted(pos)

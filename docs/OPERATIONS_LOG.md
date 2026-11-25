@@ -52,3 +52,10 @@ Newest last. Times in IST. No secret values.
 - Common point: every upgrade hangs deleting its Kubernetes namespace on EKS `env-jjwgzn-dwx-stack-eks` (CDW
   cluster 1.12.5-b291). `dw get-logs` is private-cloud only; kubectl needs valid AWS credentials (laptop's invalid).
   No further CDW change until the namespace cause is known.
+
+## 2026-11-25 20:40 IST - CDE upgrade completed
+
+- Upgrade step finished after 2 h 18 min: CDE `federal-cde` 1.26.1-h1-b15 -> 1.26.2-b291, then held in
+  `Maintenance_ClusterUpgradeCompleted` (VC `AppPaused`) until `upgrade-service --step resume`. Resume at 20:39:
+  service `ClusterCreationCompleted`, VC `federal-cde-vc` `AppInstalled` (running), all steps completed.
+- `fedops.upgrade` now runs the resume step too.

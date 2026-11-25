@@ -14,7 +14,7 @@ run its own stop).
            2. validate and prepare (no downtime)
            3. stop the shared services (fedops.ctl stop order)
            4. Data Lake backup, then upgrade with --skip-backup (the backup is this step)
-           5. CDE: resume the VC, upgrade-service prepare, backup, upgrade
+           5. CDE: resume the VC, upgrade-service prepare, backup, upgrade, resume (leaves maintenance)
            6. CDW: upgrade the DBC, start the VW, upgrade the VW
            7. start the shared services, read the versions back
            Every step reads state first: rerun the same command after fixing a failure.
@@ -298,7 +298,8 @@ def cde_upgrade() -> None:
         act(f"resume CDE VC {vc['vcName']} for the service backup", cdp, "de", "resume-vc",
             "--cluster-id", cid, "--vc-id", vc["vcId"])
         wait(vc["vcName"], lambda: cde_vc(cid)["status"], {"AppInstalled", "Running"})
-    steps = ["prepare", "backup", "upgrade"]
+    # resume takes the service out of maintenance; until then it reads Maintenance_ClusterUpgradeCompleted
+    steps = ["prepare", "backup", "upgrade", "resume"]
     st = cdp("de", "get-upgrade-status", "--cluster-id", cid)
     start = steps.index(st["nextStep"]) if st.get("nextStep") in steps else 0
     say(f"  CDE service {svc['name']} version {before}: {st.get('upgradeStatusMessage') or 'no message'}")
