@@ -147,6 +147,9 @@ def dl_check(build: str) -> tuple[str, dict | None]:
         if res.get("reason"):
             say(f"    dry run: {res['reason']}")
     except RuntimeError as e:
+        if hubs_must_stop(str(e)):
+            say(f"    dry run: {e}\n    (expected: the Data Hubs are stopped before the upgrade)")
+            return name, target
         if not any(k in str(e).lower() for k in ("database", "postgres")):
             raise SystemExit(f"Data Lake dry run refused: {e}")
         say(f"    dry run asks for a database upgrade first: {e}")
@@ -160,9 +163,22 @@ def dl_check(build: str) -> tuple[str, dict | None]:
     return name, target
 
 
-def dl_prepare(name: str, target: dict) -> None:
-    dl_run(name, f"validate and prepare the Data Lake upgrade to build {UPG['target_build']} (no downtime)",
-           "datalake", "prepare-datalake-upgrade", "--datalake", name, "--image-id", target["imageId"])
+def hubs_must_stop(text: str) -> bool:
+    t = text.lower()
+    return "data hub" in t and "stop" in t
+
+
+def dl_prepare(name: str, target: dict) -> bool:
+    """False when validation wants the Data Hubs stopped first: run it again after the shared stop."""
+    try:
+        dl_run(name, f"validate and prepare the Data Lake upgrade to build {UPG['target_build']} (no downtime)",
+               "datalake", "prepare-datalake-upgrade", "--datalake", name, "--image-id", target["imageId"])
+    except (RuntimeError, SystemExit) as e:
+        if not hubs_must_stop(str(e)):
+            raise
+        say(f"    validate and prepare deferred until the Data Hubs are stopped: {e}")
+        return False
+    return True
 
 
 def dl_backup(name: str) -> None:
@@ -228,6 +244,20 @@ def cde_status_report() -> None:
         f"in use {vr.get('actualCpuRequests')} CPU / {vr.get('actualMemoryRequests')}")
 
 
+SIZE_VCPU = {"large": 2, "xlarge": 4, "2xlarge": 8, "4xlarge": 16, "8xlarge": 32, "12xlarge": 48, "16xlarge": 64}
+GIB_PER_VCPU = {"c": 2, "m": 4, "r": 8}
+ALLOCATABLE = 0.8
+
+
+def nodes_for_quota(instance_type: str, cpu: float, mem_gib: float) -> int | None:
+    """Nodes of instance_type that hold cpu / mem_gib of pod requests; None for an unknown type."""
+    fam, _, size = str(instance_type).partition(".")
+    vcpu, per = SIZE_VCPU.get(size), GIB_PER_VCPU.get(fam[:1])
+    if not vcpu or not per:
+        return None
+    return math.ceil(max(cpu / (vcpu * ALLOCATABLE), mem_gib / (vcpu * per * ALLOCATABLE)))
+
+
 def cde_resize() -> None:
     svc = cde_service()
     r = svc.get("resources") or {}
@@ -236,13 +266,17 @@ def cde_resize() -> None:
     cpu, mem = float(vr.get("cpuRequests") or 0), gib(vr.get("memRequests"))
     cur_max = int(r.get("max_instances") or 0)
     want = TARGET.get("cde_service_max_instances")
-    if want is None and cpu:
-        want = math.ceil(cur_max * max(TARGET["cde_vc_quota_cpu"] / cpu, TARGET["cde_vc_quota_gib"] / (mem or 1), 1))
+    if want is None:
+        want = nodes_for_quota(r.get("instance_type"), TARGET["cde_vc_quota_cpu"], TARGET["cde_vc_quota_gib"])
+        if want is None:
+            say(f"  CDE service: unknown instance type {r.get('instance_type')}; set capacity "
+                "cde_service_max_instances to change the node ceiling")
     if want and want > cur_max:
         act(f"raise CDE service {svc['name']} max instances {cur_max} -> {want} ({r.get('instance_type')})",
             cdp, "de", "update-service", "--cluster-id", svc["clusterId"], "--maximum-instances", str(want))
     else:
-        say(f"  CDE service {svc['name']} max instances {cur_max}: no change")
+        say(f"  CDE service {svc['name']} max instances {cur_max} ({r.get('instance_type')}): enough for the "
+            f"target quota{f' (needs {want})' if want else ''}, no change")
     if cpu >= TARGET["cde_vc_quota_cpu"] and mem >= TARGET["cde_vc_quota_gib"]:
         say(f"  CDE VC {vc['vcName']} quota {cpu:g} CPU / {mem:g} GiB: at or above target")
         return
@@ -303,10 +337,14 @@ def pick_version(versions: dict, build: str) -> str | None:
     return versions.get("latestVersion") or None
 
 
+def vw_version(vw: dict) -> str | None:
+    return vw.get("imageVersion") or vw.get("cdhVersion")
+
+
 def cdw_status_report() -> None:
     cid, vw = cdw_vw()
     a = vw.get("autoscalingOptions") or {}
-    say(f"  CDW VW {vw['name']}: {vw['status']}, image {vw.get('imageVersion')}, CDH {vw.get('cdhVersion')}, "
+    say(f"  CDW VW {vw['name']}: {vw['status']}, version {vw_version(vw)}, "
         f"autoscale {a.get('minClusters')}..{a.get('maxClusters')} groups (target max {TARGET['impala_autoscale_max_groups']})")
     for kind, args in (("VW", ["get-upgrade-vw-versions", "--vw-id", vw["id"]]),
                        ("DBC", ["get-upgrade-dbc-versions", "--dbc-id", vw["dbcId"]])):
@@ -339,8 +377,13 @@ def cdw_upgrade(build: str) -> None:
     cid, vw = cdw_vw()
     dbc_to = pick_version(cdp("dw", "get-upgrade-dbc-versions", "--cluster-id", cid, "--dbc-id", vw["dbcId"]), build)
     if dbc_to:
-        act(f"upgrade CDW Database Catalog {vw['dbcId']} to {dbc_to}", cdp, "dw", "upgrade-dbc",
-            "--cluster-id", cid, "--dbc-id", vw["dbcId"], "--image-version", dbc_to)
+        try:
+            act(f"upgrade CDW Database Catalog {vw['dbcId']} to {dbc_to}", cdp, "dw", "upgrade-dbc",
+                "--cluster-id", cid, "--dbc-id", vw["dbcId"], "--image-version", dbc_to)
+        except RuntimeError as e:
+            if "already" not in str(e).lower():
+                raise
+            say(f"  CDW Database Catalog already at {dbc_to}")
         wait("Database Catalog", lambda: cdp("dw", "describe-dbc", "--cluster-id", cid, "--dbc-id", vw["dbcId"])["dbc"]["status"],
              {"Running"}, bad=("ERROR", "FAIL"))
     else:
@@ -349,14 +392,14 @@ def cdw_upgrade(build: str) -> None:
         act(f"start CDW VW {vw['name']} for its upgrade", cdp, "dw", "start-vw", "--cluster-id", cid, "--vw-id", vw["id"])
         wait(vw["name"], lambda: cdw_vw()[1]["status"], {"Running"}, bad=("ERROR", "FAIL"))
     vw_to = pick_version(cdp("dw", "get-upgrade-vw-versions", "--cluster-id", cid, "--vw-id", vw["id"]), build)
-    if not vw_to or vw_to == vw.get("imageVersion"):
-        say(f"  CDW VW {vw['name']}: no upgrade offered (image {vw.get('imageVersion')})")
+    if not vw_to or vw_to == vw_version(vw):
+        say(f"  CDW VW {vw['name']}: no upgrade offered (version {vw_version(vw)})")
         return
-    act(f"upgrade CDW VW {vw['name']} {vw.get('imageVersion')} -> {vw_to}", cdp, "dw", "upgrade-vw",
+    act(f"upgrade CDW VW {vw['name']} {vw_version(vw)} -> {vw_to}", cdp, "dw", "upgrade-vw",
         "--cluster-id", cid, "--vw-id", vw["id"], "--dbc-id", vw["dbcId"], "--image-version", vw_to)
     wait(vw["name"], lambda: cdw_vw()[1]["status"], {"Running"}, bad=("ERROR", "FAIL"))
     if not _dry():
-        say(f"  CDW VW {vw['name']} image now {cdw_vw()[1].get('imageVersion')}")
+        say(f"  CDW VW {vw['name']} version now {vw_version(cdw_vw()[1])}")
 
 
 # ------------------------------------------------------------------ flows
@@ -381,15 +424,17 @@ def resize(only: set) -> None:
 def upgrade(only: set, build: str) -> None:
     UPG["target_build"] = build
     target = name = None
+    prepared = True
     if "datalake" in only:
         say("[datalake checks]")
         name, target = dl_check(build)
-        if target:
-            dl_prepare(name, target)
+        prepared = dl_prepare(name, target) if target else True
     say("[shared services stop]")
     ctl.run("stop", set())
     if target:
         say("[datalake]")
+        if not prepared:
+            dl_prepare(name, target)
         dl_backup(name)
         dl_upgrade(name, target)
     if "cde" in only:

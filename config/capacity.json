@@ -3,15 +3,17 @@
   "targets": {
     "cde_vc_quota_cpu": 48,
     "cde_vc_quota_gib": 192,
-    "_cde_service_max_instances": "null = current max scaled by the larger of the CPU and memory quota increase, rounded up",
+    "_cde_service_max_instances": "null = nodes of the service's instance type that hold the VC quota at 80% allocatable; raised only if the current max is lower",
     "cde_service_max_instances": null,
     "impala_autoscale_max_groups": 10
   },
   "baseline": {
-    "_comment": "Last known live sizes (2026-11-20, EV demo repo config/platform.json).",
+    "_comment": "Read live 2026-11-25 12:45 IST (fedops.upgrade status).",
     "cde_vc_quota_cpu": 20,
     "cde_vc_quota_gib": 80,
-    "impala_autoscale_max_groups": 5
+    "cde_vc_in_use": "27 CPU / 103 GiB (over the quota)",
+    "cde_service_nodes": "r5.4xlarge x 0..50",
+    "impala_autoscale_min_max_groups": [1, 5]
   },
   "changes": [
     {"date": "2026-11-25", "status": "planned",

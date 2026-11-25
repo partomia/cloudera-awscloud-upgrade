@@ -78,13 +78,16 @@ def wait(what: str, fn, ok: set, bad: tuple = ("FAIL", "CANCEL"), timeout: int =
 
 def _cdp_exe() -> str:
     for exe in (os.environ.get("FEDERAL_CDP_CLI"), str(ROOT / ".venv" / "bin" / "cdp"), shutil.which("cdp")):
-        if exe and Path(exe).is_file():
-            return exe
+        if exe and Path(exe).expanduser().is_file():
+            return str(Path(exe).expanduser())
     raise SystemExit("cdp CLI not found: ./scripts/setup.sh, or set FEDERAL_CDP_CLI")
 
 
 def cdp(*args: str) -> dict:
     glob_args = []
+    # an explicit --profile makes cdpcli ignore CDP_ACCESS_KEY_ID / CDP_PRIVATE_KEY
+    if os.environ.get("FEDERAL_CDP_PROFILE") and not os.environ.get("CDP_ACCESS_KEY_ID"):
+        glob_args += ["--profile", os.environ["FEDERAL_CDP_PROFILE"]]
     if os.environ.get("CDP_REGION"):
         glob_args += ["--cdp-region", os.environ["CDP_REGION"]]
     if os.environ.get("CDP_ENDPOINT_URL"):
