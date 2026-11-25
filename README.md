@@ -25,7 +25,9 @@ Never committed (`.gitignore` and `.githooks/pre-commit` refuse them). `fedops` 
 2. the first env file found: `$FEDERAL_ENV_FILE`, `~/.config/federal-cdp/federal.env`, `./federal.env`;
 3. `~/.cdp/credentials` (the CDP CLI's own file).
 
-Names are in `federal.env.example`. `CDP_REGION` / `CDP_ENDPOINT_URL` are passed to every `cdp` call when set.
+Names are in `federal.env.example`. On a laptop, `./federal.env` and `local/` (both gitignored) may hold symlinks
+to the real files (`~/.config/federal-cdp/federal.env`, `~/.cdp/credentials`, `~/.cde/*`, the CA pem) so one
+folder shows everything without a second copy of a secret. `CDP_REGION` / `CDP_ENDPOINT_URL` are passed to every `cdp` call when set.
 
 ## Layout
 

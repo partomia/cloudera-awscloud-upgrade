@@ -1,7 +1,7 @@
 #!/bin/sh
 # Refuses a commit that stages a credentials file or a value that looks like a key.
 staged=$(git diff --cached --name-only --diff-filter=ACMR)
-bad=$(echo "$staged" | grep -E '(^|/)(federal\.env|credentials|[^/]*\.(pem|key))$|(^|/)\.cdp/' | grep -v 'federal\.env\.example$')
+bad=$(echo "$staged" | grep -E '(^|/)(federal\.env|credentials|[^/]*password[^/]*\.txt|[^/]*\.(pem|key))$|(^|/)(\.cdp|\.cde|local)/' | grep -v 'federal\.env\.example$')
 if [ -n "$bad" ]; then
   echo "pre-commit: credentials file staged; commit refused:" >&2
   echo "$bad" >&2
