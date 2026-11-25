@@ -1,0 +1,22 @@
+{
+  "_comment": "python -m fedops.upgrade resize. Raise only, never lower. Log every live change in changes and docs/OPERATIONS_LOG.md.",
+  "targets": {
+    "cde_vc_quota_cpu": 48,
+    "cde_vc_quota_gib": 192,
+    "_cde_service_max_instances": "null = current max scaled by the larger of the CPU and memory quota increase, rounded up",
+    "cde_service_max_instances": null,
+    "impala_autoscale_max_groups": 10
+  },
+  "baseline": {
+    "_comment": "Last known live sizes (2026-11-20, EV demo repo config/platform.json).",
+    "cde_vc_quota_cpu": 20,
+    "cde_vc_quota_gib": 80,
+    "impala_autoscale_max_groups": 5
+  },
+  "changes": [
+    {"date": "2026-11-25", "status": "planned",
+     "from": "CDE VC 20 CPU / 80 GiB, Impala autoscale max 5",
+     "to": "CDE VC 48 CPU / 192 GiB, CDE service max instances scaled to match, Impala autoscale max 10",
+     "reason": "EV demo alone is about 20 CPU / 60 GiB (six streams + one batch job); room for sibling demos in parallel"}
+  ]
+}

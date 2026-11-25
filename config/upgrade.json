@@ -1,0 +1,7 @@
+{
+  "_comment": "python -m fedops.upgrade upgrade: Data Lake to the image whose Runtime build (cdpGBN) is target_build, then the CDE service and the CDW DBC + VW to the latest version each offers.",
+  "target_build": "81274879",
+  "datalake_backup_prefix": "pre-upgrade",
+  "datalake_rolling": false,
+  "min_cde_version_for_7_3": "1.24"
+}

@@ -1,0 +1,14 @@
+{
+  "_comment": "Demos that run on the shared services. Stop their project workloads before a platform stop or upgrade (streams then stop cleanly at a checkpoint), start them after. fedops prints these; it does not run them.",
+  "projects": [
+    {
+      "name": "ev-factory-to-field",
+      "repo": "https://github.com/partomia/EV-Factory-to-Field-Lakehouse",
+      "uses": ["kafka", "nifi", "flink", "cdw", "cde", "cai"],
+      "stop": "python scripts/platform_ctl.py stop",
+      "start": "python scripts/platform_ctl.py start",
+      "status": "python scripts/platform_ctl.py status",
+      "notes": "Producer and nightly DAG stay off after start unless asked."
+    }
+  ]
+}

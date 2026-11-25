@@ -1,0 +1,14 @@
+# Credentials: never committed. Real values live in Cursor secrets or ~/.config/federal-cdp/federal.env
+federal.env
+*.env
+!federal.env.example
+.cdp/
+*.pem
+*.key
+
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
