@@ -28,3 +28,15 @@ Newest last. Times in IST. No secret values.
 - Fixed from this output: CDE node ceiling is now computed from the instance type (50 x r5.4xlarge already holds
   48 CPU / 192 GiB: no change); the CDW version comes from `cdhVersion`; a "stop the Data Hubs" answer from the
   Data Lake no longer stops the plan; `FEDERAL_CDP_CLI` with `~` and `FEDERAL_CDP_PROFILE` are honoured.
+
+## 2026-11-25 15:20-16:20 IST - Full stop, then resize (from the laptop)
+
+- EV demo project stop (`platform_ctl.py stop`): two CAI applications and model `evx-uc01-service` stopped, NiFi
+  group `EVX - Alert Router` stopped, schedule `rsingh-evx-orchestration` paused, stream runs #1250-#1255 killed
+  (they resume from their checkpoints on start).
+- `fedops.ctl stop --yes-shared`, 48 min: CAI workspace suspended (24.5 min), NiFi, CDE VC, Impala VW, Flink and
+  Kafka stopped. Data Lake and FreeIPA left running.
+- `fedops.upgrade resize --yes-shared`: Impala `federal-impala-1` autoscale max 5 -> 10, read back. The update
+  starts the VW; suspended it again (`ctl stop --only cdw`). CDE service max instances 50 x r5.4xlarge: no change.
+- CDE VC quota still 20 CPU / 80 GiB: `cdp de update-vc` has no quota field (checked on cdpcli 0.9.165), UI step
+  pending.

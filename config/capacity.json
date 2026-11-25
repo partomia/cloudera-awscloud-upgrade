@@ -16,7 +16,7 @@
     "impala_autoscale_min_max_groups": [1, 5]
   },
   "changes": [
-    {"date": "2026-11-25", "status": "planned",
+    {"date": "2026-11-25", "status": "partly applied: Impala autoscale max 10 (16:10 IST); CDE VC quota pending the UI step",
      "from": "CDE VC 20 CPU / 80 GiB, Impala autoscale max 5",
      "to": "CDE VC 48 CPU / 192 GiB, CDE service max instances scaled to match, Impala autoscale max 10",
      "reason": "EV demo alone is about 20 CPU / 60 GiB (six streams + one batch job); room for sibling demos in parallel"}
