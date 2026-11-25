@@ -4,8 +4,9 @@ Operations on the shared services of the Cloudera on cloud (AWS) **federal** env
 start/stop of the shared layers, capacity changes, and upgrades of the Data Lake, CDE and CDW. Every demo on
 the environment (see `config/projects.json`) uses these services, so changes here are planned and logged.
 
-**Status (2026-11-25):** repository set up; nothing applied live yet. Planned: Data Lake to Runtime build
-`81274879`, CDE and CDW upgrades on offer, CDE VC 20 → 48 CPU / 80 → 192 GiB, Impala autoscale max 5 → 10.
+**Status (2026-11-25 12:45 IST):** first live status read. Data Lake already on Runtime 7.3.2 build `81274879`
+(7.3.2 build 83281140 and 7.3.3 offered); CDE 1.26.1 and CDW 2025.0.21.3-3 have upgrades on offer. CDE VC
+20 CPU / 80 GiB (27 / 103 in use), Impala autoscale 1..5. No change applied yet.
 
 | Task | Command |
 |---|---|

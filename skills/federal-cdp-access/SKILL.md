@@ -68,7 +68,7 @@ The CDP account holds many environments (pse-emea, psedemo1, ptner-sndbox, caws1
 
 - **Impala: "Failure to initialize security context" / "Could not connect to meta store".** The VW `federal-impala-1`'s own Kerberos login to the Data Lake Hive Metastore goes stale. `SELECT 1` and cached tables still work; any table whose metadata must load fails. Not a client problem: every project and CAI see it. Fix (shared, ask first): `cdp dw` suspend then start of `FEDERAL_IMPALA_VW_ID` on `FEDERAL_CDW_CLUSTER_ID`, then `INVALIDATE METADATA` only on the failing tables of the current project. It has come back within hours; report it for a lasting fix.
 - **CAI model or app restart returns HTTP 500 "restartModelNotFound" or 404.** The workbench lost the deployment. Create a new deployment of the same build with the old CPU / memory / replicas; for an app, a second `:restart` usually succeeds.
-- **CDE run stuck in "starting".** The shared virtual cluster has no room. Headroom is the quota minus the requests of running and starting runs; do not raise the quota or kill other projects' runs.
+- **CDE run stuck in "starting".** The shared virtual cluster has no room. Headroom is the quota minus the requests of running and starting runs; do not kill other projects' runs, and raise the quota only when the user asks (`cloudera-platform-upgrade` skill, `fedops.upgrade resize`).
 - **CAI job stuck in "scheduling", then ENGINE_FAILED after 60 min.** The per-user quota is full (every project runs as the same user). Stop unused apps and models of the current project.
 
 ## Record
