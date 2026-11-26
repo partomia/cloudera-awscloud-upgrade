@@ -65,3 +65,15 @@ Newest last. Times in IST. No secret values.
 - `federal-aw-dl-default` Deleting for 5.5 min, then Error; no new DBC event since 16:57 ("deleting namespace"):
   the namespace from the 16:57 attempt is still terminating. Retries will fail until it is cleared on EKS.
 - Laptop AWS profiles `default` and `981304421142_cldr_poweruser` return InvalidClientTokenId (expired keys).
+
+## 2026-11-26 10:36-11:21 IST - CDW rebuilt on 2026.0.21.4-12
+
+- Database Catalog namespace finally deleted 10:36; catalog Running 10:39 (upgraded from the UI).
+- From the UI: Impala, Trino and Hive VWs deleted; Impala recreated as `impala-1795670345-2pbx`, 2026.0.21.4-12,
+  autoscale 5..10 groups, HA active-passive, 50 x r5d.4xlarge while awake.
+- From the laptop (`dw create-vw`), r5d.4xlarge, ap-south-1a, xsmall (2 executors), auto-suspend 300 s, CDP JWT,
+  LDAP groups `federal-aw-cdp-admin-group`, `federal-aw-cdp-user-group`:
+  - Hive `federal-hive-1` = `compute-1795671915-kvqz`, 2026.0.21.4-12, autoscale 1..10. Running 11:20.
+  - Trino `federal-trino-1` = `trino-1795671924-kqnz`, 2026.0.24.0-37 (2026.0.21.4-12 is not offered for Trino).
+    Connectors `hive` and `iceberg` attached by default. Running 11:21.
+- The API does not return a VW's LDAP groups; check them in the UI.
