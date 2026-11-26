@@ -77,3 +77,16 @@ Newest last. Times in IST. No secret values.
   - Trino `federal-trino-1` = `trino-1795671924-kqnz`, 2026.0.24.0-37 (2026.0.21.4-12 is not offered for Trino).
     Connectors `hive` and `iceberg` attached by default. Running 11:21.
 - The API does not return a VW's LDAP groups; check them in the UI.
+
+## 2026-11-26 11:42-12:25 IST - Auto-suspend off, AI Registry recreated, env file refreshed
+
+- `dw update-vw --autoscaling disableAutoSuspend=true` on Impala, Hive and Trino (user request); read back true.
+  Impala stays at 50 x r5d.4xlarge around the clock until stopped (`fedops.ctl stop --only cdw`).
+- `config/environment.json` `cdw_vws` now lists Impala, Hive and Trino, so the shared stop / start covers all three.
+- AI Registry recreated (the old one was deleted by mistake): `ml create-model-registry`, public endpoint,
+  `model-registry-ml-00576a42-222`, 1.18.0-b19, Liftie `liftie-4njrrddx`. The old registry's Liftie
+  `liftie-pvlrntzn` is gone.
+- `federal.env` and the skill template: VW IDs, CRNs, Hive / Trino hosts, Hue URLs, DBC CRN, CDE version, Liftie
+  ids (CDE `liftie-ktsxpxlm`, CAI `liftie-dnt6p77s`, AI Registry, shared `liftie-mr740991`), CDW EKS, admin CRN.
+- CAI workspace `federal-cml-ws` upgrade (started from the UI): workspace `upgrade:started`, Liftie
+  `liftie-dnt6p77s` `UPGRADE_FAILED`.

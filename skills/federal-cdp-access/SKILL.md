@@ -51,6 +51,9 @@ The CDP account holds many environments (pse-emea, psedemo1, ptner-sndbox, caws1
 | CDE jobs | `cde` (reads `~/.cde/config.yaml`, vcluster `FEDERAL_CDE_VCLUSTER_ENDPOINT`). Python output of a run: `cde run logs --id N --download-all`, then `driver_stdout.log` |
 | CAI | API v2: `$FEDERAL_CAI_HOST/api/v2/...`, header `Authorization: Bearer $FEDERAL_CAI_API_KEY` |
 | Impala | impyla: host `FEDERAL_IMPALA_HOST`, port 443, `use_ssl`, `use_http_transport`, `http_path=cliservice`, `auth_mechanism=LDAP`, the workload user. Not Kerberos from the client |
+| Hive, Trino | Hive: HiveServer2 over HTTP at `FEDERAL_HIVE_HOST`:443, `FEDERAL_HIVE_HTTP_PATH`. Trino: `https://$FEDERAL_TRINO_HOST:443`, the workload user; catalogs `FEDERAL_TRINO_CONNECTORS`. Hue: `FEDERAL_*_HUE_URL` |
+| AI Registry | `FEDERAL_AI_REGISTRY_URL` (CRN `FEDERAL_AI_REGISTRY_CRN`); `cdp ml describe-model-registry --model-registry-crn` |
+| Kubernetes (Liftie) | CDE `FEDERAL_CDE_LIFTIE`, CAI `FEDERAL_CAI_LIFTIE`, AI Registry `FEDERAL_AI_REGISTRY_LIFTIE`, shared `FEDERAL_DEFAULT_COMPUTE_LIFTIE`; CDW runs on its own EKS `FEDERAL_CDW_EKS_CLUSTER` (`cdp compute list-clusters`) |
 | Kafka | `FEDERAL_KAFKA_BOOTSTRAP`, SASL_SSL / PLAIN, the workload user, CA `FEDERAL_CA_PEM`; Schema Registry and SMM through Knox (`FEDERAL_SCHEMA_REGISTRY_URL`, `FEDERAL_SMM_API_URL`) |
 | IDBroker (S3 credentials outside Spark) | GET a Knox token from `FEDERAL_IDBROKER_TOKEN_URL` with basic auth, then `FEDERAL_IDBROKER_CAB_URL` with `Authorization: Bearer`; `aws-cab` rejects basic auth (HTTP 401) |
 

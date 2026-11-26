@@ -2,7 +2,7 @@
   "_comment": "Shared services of the federal environment. Names are resolved by the CDP CLI at run time.",
   "environment": "federal-cdp-env",
   "datahubs": {"kafka": "federal-kafka", "nifi": "federal-nifi", "flink": "federal-flink"},
-  "cdw_vws": ["federal-impala-1"],
+  "cdw_vws": ["federal-impala-1", "federal-hive-1", "federal-trino-1"],
   "cde_service": "federal-cde",
   "cde_vc": "federal-cde-vc",
   "cai_workspace": "federal-cml-ws",

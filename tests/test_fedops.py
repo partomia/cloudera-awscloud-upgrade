@@ -65,9 +65,10 @@ class FakeCdp:
         if a == "dw list-clusters":
             return {"clusters": [{"id": "env-x", "environmentCrn": "env-crn"}]}
         if a == "dw list-vws":
-            return {"vws": [{"name": ENV["cdw_vws"][0], "id": "compute-1", "dbcId": "warehouse-1",
+            return {"vws": [{"name": name, "id": f"compute-{i + 1}", "dbcId": "warehouse-1",
                              "status": "Running", "cdhVersion": self.vw_version,
-                             "autoscalingOptions": {"minClusters": 1, "maxClusters": self.vw_max}}]}
+                             "autoscalingOptions": {"minClusters": 1, "maxClusters": self.vw_max}}
+                            for i, name in enumerate(ENV["cdw_vws"])]}
         if a in ("dw get-upgrade-vw-versions", "dw get-upgrade-dbc-versions"):
             return {"latestVersion": "2025.0.20.1-9", "latestCDPVersion": f"7.3.1.500-{BUILD}"}
         if a == "ml list-workspaces":
