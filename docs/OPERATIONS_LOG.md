@@ -90,3 +90,18 @@ Newest last. Times in IST. No secret values.
   ids (CDE `liftie-ktsxpxlm`, CAI `liftie-dnt6p77s`, AI Registry, shared `liftie-mr740991`), CDW EKS, admin CRN.
 - CAI workspace `federal-cml-ws` upgrade (started from the UI): workspace `upgrade:started`, Liftie
   `liftie-dnt6p77s` `UPGRADE_FAILED`.
+
+## 2026-11-26 15:00 IST - Everything upgraded; pipelines restarted
+
+- Versions read live: Data Lake 7.3.2 p100 build 81274879 (CM 7.13.2.100); Data Hubs Kafka, NiFi, Flink 7.3.2
+  p20000 build 83281140 (CM 7.13.2.20000, upgraded from the UI), NiFi 2.6.0; CAI `federal-cml-ws` 2.1.0-b96
+  (`upgrade:finished`, Liftie on Kubernetes 1.35); AI Registry 1.18.0-b19; CDE 1.26.2-b291; CDW 2026.0.21.4-12,
+  Trino 2026.0.24.0-37. `federal_check.py` all OK (it now accepts `upgrade:finished`).
+- `federal.env` and the template: Data Lake / Data Hub runtimes, Data Hub CRNs, NiFi, NiFi Registry, SSB, Flink
+  and Kafka Connect URLs, CAI and AI Registry versions.
+- EV `platform_ctl.py start`: DAG `rsingh-evx-orchestration` unpaused, streams #1344-#1351 from checkpoints, NiFi
+  Alert Router processors, both CAI apps; model `evx-uc01-service` redeployed as `d9010319` (old deployment gone).
+- Spend: schedule was active; run #1339 (as_of 2026-11-24) had failed at `cai_categorise` (CAI down). Rerun
+  `cde job run --config-json '{"as_of":"2026-11-24"}'` = #1346.
+- NiFi: node `federal-nifi-nifi0` DISCONNECTED ("Node was Shutdown"), 2 / 3 connected; the API works. SSB shows 0
+  jobs in `ssb_default` and `rsingh_default`, no Flink apps on YARN. Only `handson-workshop-cloudera` uses SSB.

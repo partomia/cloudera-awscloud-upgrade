@@ -78,7 +78,8 @@ def cdw():
 
 def cai_workspace():
     ws = [w for w in cdp("ml", "list-workspaces")["workspaces"] if w["instanceName"] == E["FEDERAL_CAI_WORKSPACE"]]
-    return bool(ws) and ws[0]["instanceStatus"] in ("installation:finished", "modify:finished"), \
+    return bool(ws) and ws[0]["instanceStatus"] in ("installation:finished", "modify:finished",
+                                                    "upgrade:finished", "resume:finished"), \
         f"{E['FEDERAL_CAI_WORKSPACE']} {ws[0]['instanceStatus'] if ws else 'not found'}"
 
 
