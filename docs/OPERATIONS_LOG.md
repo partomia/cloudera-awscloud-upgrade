@@ -84,7 +84,7 @@ Newest last. Times in IST. No secret values.
   Impala stays at 50 x r5d.4xlarge around the clock until stopped (`fedops.ctl stop --only cdw`).
 - `config/environment.json` `cdw_vws` now lists Impala, Hive and Trino, so the shared stop / start covers all three.
 - AI Registry recreated (the old one was deleted by mistake): `ml create-model-registry`, public endpoint,
-  `model-registry-ml-00576a42-222`, 1.18.0-b19, Liftie `liftie-4njrrddx`. The old registry's Liftie
+  `model-registry-ml-00576a42-222`, 1.18.0-b19, Liftie `liftie-4njrrddx`; installation:finished 12:31. The old registry's Liftie
   `liftie-pvlrntzn` is gone.
 - `federal.env` and the skill template: VW IDs, CRNs, Hive / Trino hosts, Hue URLs, DBC CRN, CDE version, Liftie
   ids (CDE `liftie-ktsxpxlm`, CAI `liftie-dnt6p77s`, AI Registry, shared `liftie-mr740991`), CDW EKS, admin CRN.
